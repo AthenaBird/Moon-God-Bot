@@ -65,8 +65,10 @@ module.exports = {
     });
 
     let completed = true;
+    let c_arr;
 
     collector.on("collect", m => {
+      c_arr.push(m);
       if (m.content === "cancel") {
         completed = false;
         message.channel.send("Poll cancelled.");
@@ -75,6 +77,7 @@ module.exports = {
       } else if (m.content === "done") {
         completed = true;
         message.channel.send("Creating poll...");
+        collector.stop();
       } else {
         m.react("\u2705");
         console.log(`Collected ${m.content}`);
@@ -82,8 +85,7 @@ module.exports = {
     });
 
     collector.on("end", collected => {
-      if (completed === true) {
-        let c_arr = collected.array();
+        //c_arr = collected.array();
         const embed = new Discord.RichEmbed()
           .setColor("ff4c4c")
           .setTitle("**" + name + "**")
@@ -99,7 +101,40 @@ module.exports = {
 
         let number_emojis = ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"];
         
-        client.channels.get("655958483442728961").send(embed).then(sent => {
+        client.channels.get("637772235494522889").send(embed).then(sent => {
+          for (let i = 0, p = Promise.resolve(); i < c_arr.length - 1; i++) {
+            p = p.then(
+              _ =>
+                new Promise(resolve =>
+                  setTimeout(function() {
+                    sent.react(number_emojis[i]);
+                    resolve();
+                  }, Math.random() * 2000)
+                )
+            );
+          }
+        });
+        message.channel.send("Poll created!");
+      
+    });
+    
+    if (completed === true) {
+      const embed = new Discord.RichEmbed()
+          .setColor("ff4c4c")
+          .setTitle("**" + name + "**")
+          .setDescription(
+            "Poll created by: __" + message.member.nickname + "__"
+          )
+          .setThumbnail(message.member.displayAvatarURL);
+
+        for (let i = 0; i < c_arr.length - 1; i++) {
+          let counter = i + 1;
+          embed.addField("**Option " + counter + "**", c_arr[i], true);
+        }
+
+        let number_emojis = ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"];
+        
+        client.channels.get("637772235494522889").send(embed).then(sent => {
           for (let i = 0, p = Promise.resolve(); i < c_arr.length - 1; i++) {
             p = p.then(
               _ =>
@@ -114,6 +149,5 @@ module.exports = {
         });
         message.channel.send("Poll created!");
       }
-    });
   }
 };
