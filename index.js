@@ -330,6 +330,8 @@ client.on("message", message => {
     client.commands.get("unsnap").execute(message, args);
   } else if (command === "poll") {
     client.commands.get("poll").execute(message, args, client);
+  } else if (command === "howdy") {
+    client.commands.get("howdy").execute(message, args, client);
   } else {
     message.channel.send("I don't know what you're trying to tell me, but that is not a valid commnad.");
   }
