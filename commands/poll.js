@@ -64,13 +64,14 @@ module.exports = {
       time: 90000
     });
 
-    let completed = true;
-    let c_arr;
+    let completed = false;
+    let cancelled = false;
+    let c_arr = [];
 
     collector.on("collect", m => {
-      c_arr.push(m);
+      c_arr.push(m.content);
       if (m.content === "cancel") {
-        completed = false;
+        cancelled = true;
         message.channel.send("Poll cancelled.");
         collector.stop();
         return;
@@ -86,7 +87,7 @@ module.exports = {
 
     collector.on("end", collected => {
         //c_arr = collected.array();
-        const embed = new Discord.RichEmbed()
+        /*const embed = new Discord.RichEmbed()
           .setColor("ff4c4c")
           .setTitle("**" + name + "**")
           .setDescription(
@@ -114,11 +115,13 @@ module.exports = {
             );
           }
         });
-        message.channel.send("Poll created!");
+        message.channel.send("Poll created!");*/
+      if (!cancelled && !completed) {
+        message.channel.send("You have reached the max number of options or ran out of time!");
+        completed = true;
+      }
       
-    });
-    
-    if (completed === true) {
+      if (completed === true) {
       const embed = new Discord.RichEmbed()
           .setColor("ff4c4c")
           .setTitle("**" + name + "**")
@@ -149,5 +152,10 @@ module.exports = {
         });
         message.channel.send("Poll created!");
       }
+      
+    });
+  
+    
+    
   }
 };
