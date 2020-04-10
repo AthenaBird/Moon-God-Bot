@@ -137,7 +137,7 @@ module.exports = {
 
         let number_emojis = ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"];
         
-        client.channels.get("637772235494522889").send(embed).then(sent => {
+        client.channels.get("655958483442728961").send(embed).then(sent => {
           for (let i = 0, p = Promise.resolve(); i < c_arr.length - 1; i++) {
             p = p.then(
               _ =>
