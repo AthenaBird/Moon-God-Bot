@@ -7,6 +7,7 @@ const config = require("./config.json");
 const SQLite = require("better-sqlite3");
 const sql_rps = new SQLite("./databases/rps.sqlite");
 const sql_cuddles = new SQLite("./databases/cuddles.sqlite");
+const sql_emojis = new SQLite("./databases/emojis.sqlite")
 const fs = require('fs');
 const cooldowns = new Discord.Collection();
 
@@ -62,14 +63,13 @@ client.once("ready", () => {
     "INSERT OR REPLACE INTO rps (id, user, guild, score) VALUES (@id, @user, @guild, @score);"
   );
   
-  
   // cuddle SQL 
-  const cuddle_rps = sql_cuddles
+  const cuddle_sql = sql_cuddles
     .prepare(
       "SELECT count(*) FROM sqlite_master WHERE type='table' AND name = 'cuddles';"
     )
     .get();
-  if (!cuddle_rps["count(*)"]) {
+  if (!cuddle_sql["count(*)"]) {
     // If the table isn't there, create it and setup the database correctly.
     sql_cuddles
       .prepare(
@@ -81,7 +81,32 @@ client.once("ready", () => {
     sql_cuddles.pragma("synchronous = 1");
     sql_cuddles.pragma("journal_mode = wal");
   }
+  
+  // emote SQL 
+  const emojis_sql = sql_emojis
+    .prepare(
+      "SELECT count(*) FROM sqlite_master WHERE type='table' AND name = 'emojis';"
+    )
+    .get();
+  if (!emojis_sql["count(*)"]) {
+    // If the table isn't there, create it and setup the database correctly.
+    sql_emojis
+      .prepare(
+        "CREATE TABLE emojis (id TEXT PRIMARY KEY, name TEXT, count INT);"
+      )
+      .run();
+    // Ensure that the "id" row is always unique and indexed.
+    sql_cuddles.prepare("CREATE UNIQUE INDEX idx_emojis_id ON emojis (id);").run();
+    sql_cuddles.pragma("synchronous = 1");
+    sql_cuddles.pragma("journal_mode = wal");
+  }
 
+  client.getEmojis = sql_emojis.prepare(
+    "SELECT * FROM emojis WHERE id = ?"
+  );
+  client.setEmojis = sql_emojis.prepare(
+    "INSERT OR REPLACE INTO emojis (id, name, count) VALUES (@id, @name, @count);"
+  );
   // And then we have two prepared statements to get and set the score data.
   /*client.getCuddles = sql_cuddles.prepare(
     "SELECT * FROM cuddles WHERE user = ? AND guild = ?"
@@ -98,8 +123,69 @@ client.once("ready", () => {
 
 client.on("message", message => {
   //format the command and the arguments
-  if (!message.content.startsWith(config.prefix)) return;
   if (message.author.bot) return;
+  
+  //auto response to non commands
+  if (message.content.toLowerCase() === "69") {
+    message.channel.send("nice");
+  }
+
+  if (message.content.toLowerCase() === "wtf") {
+    const cursecat = client.emojis.find(emoji => emoji.name === "cursecat");
+    message.channel.send(`${cursecat}`);
+  }
+
+  if (message.content.toLowerCase() === "420") {
+    message.channel.send("**blaze it**");
+  }
+
+  if (
+    message.content.toLowerCase().includes("fuck you moon") ||
+    message.content.toLowerCase().includes("stupid moon")
+  ) {
+    message.channel.send("fuck you too 🖕");
+  }
+  
+  //--EMOJI COUNT--//
+  if(message.content.toLowerCase().includes("<:")){
+    var emoji_info = message.content.split(":");
+    // "<, name, "id>"
+    if (emoji_info.length < 3 || emoji_info.length > 3) {
+      return;  
+    } 
+    
+    var emoji_name = emoji_info[1];
+    var emoji_id = emoji_info[2].substring(0, emoji_info[2].length-1);
+    
+    var emoji_find = client.emojis.find(emoji => emoji.name === emoji_name.toString());
+  
+    //emoji cannot be found in server;
+    if (emoji_find === null) {
+      console.log("Emoji not found in server: " + emoji_name);
+      return;
+    
+    //emoji is found in the server and added to sql database
+    } else {
+      console.log("Emoji found: " + emoji_name);
+      var emoji_data = client.getEmojis.get(emoji_id);
+      if (!emoji_data) {
+        emoji_data = {
+          id: `${emoji_id}`,
+          name: `${emoji_name}`,
+          count: 0
+        };
+      }
+    
+    emoji_data.count = emoji_data.count + 1;
+    console.log(emoji_data.count);
+    client.setEmojis.run(emoji_data);
+      
+    }
+  }
+    
+  //--COMMANDS--//
+      
+  if (!message.content.startsWith(config.prefix)) return;
   
   //ARGS SLICING
   const args = message.content.slice(config.prefix.length).split(/ +/);
@@ -133,40 +219,31 @@ client.on("message", message => {
   //COMMAND RUNNER
   //Todo: how to send sql thru it
   try {
+    //special case for emoji since it needs client;
+    //TODO: add client in the command file itself?
+    if (commandName === "emojicount") {
+      console.log("emojicount");
+      command.execute(message, args, client);
+      
+    }
+    
     command.execute(message, args);
+    
+    
   } catch (error) {
 	  console.error(error);
 	  message.reply('there was an error trying to execute that command!');
   }
 
-
   
-  if (message.content.toLowerCase() === "69") {
-    message.channel.send("nice");
-  }
-
-  if (message.content.toLowerCase() === "wtf") {
-    const cursecat = client.emojis.find(emoji => emoji.name === "cursecat");
-    message.channel.send(`${cursecat}`);
-  }
-
-  if (message.content.toLowerCase() === "420") {
-    message.channel.send("**blaze it**");
-  }
-
-  if (
-    message.content.toLowerCase().includes("fuck you moon") ||
-    message.content.toLowerCase().includes("stupid moon")
-  ) {
-    message.channel.send("fuck you too 🖕");
-  }
-
-  if (
+  
+    if (
     (message.content.toLowerCase().includes("vore") ||
       message.content.toLowerCase().includes("v o r e")) &&
     message.content.indexOf(config.prefix) !== 0
   ) {
     if (message.content.toLowerCase().includes("vore")) {
+    
       
 
       /* let extra = Math.floor(Math.random() * Math.floor(100));

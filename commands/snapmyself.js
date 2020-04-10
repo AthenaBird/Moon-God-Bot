@@ -7,7 +7,7 @@ module.exports = {
     let snapped = message.guild.roles.find(
       role => role.name === "SNAPPED");
     let verified = message.guild.roles.find(
-      role => role.name === "reVerified");
+      role => role.name === "Verified");
     let member = message.member;
     member.addRole(snapped).catch(console.error);
     member.removeRole(verified).catch(console.error);
