@@ -5,8 +5,11 @@ const Discord = require("discord.js");
 const client = new Discord.Client();
 const config = require("./config.json");
 const SQLite = require("better-sqlite3");
-const sql = new SQLite("./rps.sqlite");
+const sql_rps = new SQLite("./databases/rps.sqlite");
+const sql_cuddles = new SQLite("./databases/cuddles.sqlite");
+const sql_emojis = new SQLite("./databases/emojis.sqlite")
 const fs = require('fs');
+const cooldowns = new Discord.Collection();
 
 client.commands = new Discord.Collection();
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
@@ -32,46 +35,104 @@ setInterval(() => {
 
 client.once("ready", () => {
   console.log("Ready!");
-  const table = sql
+  
+  //RPS table
+  const rps_table = sql_rps
     .prepare(
       "SELECT count(*) FROM sqlite_master WHERE type='table' AND name = 'rps';"
     )
     .get();
-  if (!table["count(*)"]) {
+  if (!rps_table["count(*)"]) {
     // If the table isn't there, create it and setup the database correctly.
-    sql
+    sql_rps
       .prepare(
         "CREATE TABLE rps (id TEXT PRIMARY KEY, user TEXT, guild TEXT, score INTEGER);"
       )
       .run();
     // Ensure that the "id" row is always unique and indexed.
-    sql.prepare("CREATE UNIQUE INDEX idx_rps_id ON rps (id);").run();
-    sql.pragma("synchronous = 1");
-    sql.pragma("journal_mode = wal");
+    sql_rps.prepare("CREATE UNIQUE INDEX idx_rps_id ON rps (id);").run();
+    sql_rps.pragma("synchronous = 1");
+    sql_rps.pragma("journal_mode = wal");
   }
 
   // And then we have two prepared statements to get and set the score data.
-  client.getScore = sql.prepare(
+  client.getScore = sql_rps.prepare(
     "SELECT * FROM rps WHERE user = ? AND guild = ?"
   );
-  client.setScore = sql.prepare(
+  client.setScore = sql_rps.prepare(
     "INSERT OR REPLACE INTO rps (id, user, guild, score) VALUES (@id, @user, @guild, @score);"
   );
+  
+  // cuddle SQL 
+  const cuddle_sql = sql_cuddles
+    .prepare(
+      "SELECT count(*) FROM sqlite_master WHERE type='table' AND name = 'cuddles';"
+    )
+    .get();
+  if (!cuddle_sql["count(*)"]) {
+    // If the table isn't there, create it and setup the database correctly.
+    sql_cuddles
+      .prepare(
+        "CREATE TABLE cuddles (id TEXT PRIMARY KEY, user TEXT, guild TEXT, sent INTEGER, received INTEGER);"
+      )
+      .run();
+    // Ensure that the "id" row is always unique and indexed.
+    sql_cuddles.prepare("CREATE UNIQUE INDEX idx_cuddles_id ON cuddles (id);").run();
+    sql_cuddles.pragma("synchronous = 1");
+    sql_cuddles.pragma("journal_mode = wal");
+  }
+  
+  // emote SQL 
+  const emojis_sql = sql_emojis
+    .prepare(
+      "SELECT count(*) FROM sqlite_master WHERE type='table' AND name = 'emojis';"
+    )
+    .get();
+  if (!emojis_sql["count(*)"]) {
+    // If the table isn't there, create it and setup the database correctly.
+    sql_emojis
+      .prepare(
+        "CREATE TABLE emojis (id TEXT PRIMARY KEY, name TEXT, count INT);"
+      )
+      .run();
+    // Ensure that the "id" row is always unique and indexed.
+    sql_cuddles.prepare("CREATE UNIQUE INDEX idx_emojis_id ON emojis (id);").run();
+    sql_cuddles.pragma("synchronous = 1");
+    sql_cuddles.pragma("journal_mode = wal");
+  }
 
+  client.getEmojis = sql_emojis.prepare(
+    "SELECT * FROM emojis WHERE id = ?"
+  );
+  client.setEmojis = sql_emojis.prepare(
+    "INSERT OR REPLACE INTO emojis (id, name, count) VALUES (@id, @name, @count);"
+  );
+  // And then we have two prepared statements to get and set the score data.
+  /*client.getCuddles = sql_cuddles.prepare(
+    "SELECT * FROM cuddles WHERE user = ? AND guild = ?"
+  );
+  client.setCuddles = sql_cuddles.prepare(
+    "INSERT OR REPLACE INTO cuddles (id, user, guild, sent, received) VALUES (@id, @user, @guild, @sent, @received)"
+  );*/
+  
+  
+  
+  
   client.user.setActivity("the demise of Sun God Bot", { type: "WATCHING" });
 });
 
 client.on("message", message => {
   //format the command and the arguments
-  //!message.content.startsWith(config.prefix) ||
   if (message.author.bot) return;
-
-  const args = message.content
-    .slice(config.prefix.length)
-    .trim()
-    .split(/ +/g);
-  const command = args.shift().toLowerCase();
-
+  
+  //logging ttalk messages
+  var message_content = message.content + "\n";
+  if (message.channel.id == "425873171431030786") {
+    fs.appendFileSync('./files/ttalk.txt', message_content, 'utf8');
+  
+  }
+  
+  //auto response to non commands
   if (message.content.toLowerCase() === "69") {
     message.channel.send("nice");
   }
@@ -91,13 +152,140 @@ client.on("message", message => {
   ) {
     message.channel.send("fuck you too 🖕");
   }
-
+    
+      //"aight" == "imma head out"
+  if (message.content.toLowerCase() === "aight") {
+    message.channel.send("imma head out");
+  }
+    
+      //press E to pay respects
   if (
+    message.content.toLowerCase() === "press f to pay respects" ||
+    message.content.toLowerCase() === "f in chat"
+  ) {
+    message.channel.send("E");
+  }
+
+  //goodnight
+  if (message.content.toLowerCase() === "goodnight") {
+    message.channel.send("nobody cares that you're going to sleep lol");
+  }
+  
+  if(message.content.toLowerCase() === "test") {
+    var randomN = Math.floor(Math.random() * 10); 
+    
+    if (randomN < 4) {
+		  message.channel.send('Yea I know generally testing sucks and all, but if you really want to think about it, it\'s only one of the ways that our current education system is able to make sure that we are able to proficiently learn the material of the class. The quarter system is really rough and moves forward at a rally fast pace, so make sure you don\'t procrastinate and try to go to office hours/discussions if you don\'t understand the material.' + 
+                           ' I have a friend who does completely fine in the class itself and has a lot of nerves that get in their way when they do testing, and the best advice I can give you is to study to the point where you can teach your friends about the material, and during the tests just pretend that you\'re explaining the problem to your friend and write it down. This quarter is also really wack but it also applied to all the professors and TA\'s as this is also their first time doing something like this. ' + 
+                           'Alot of classes also have comprehension quizzes but as long as you make an attempt at the reading material or any pre-work that should be done you should be fine. GL on all your first and maybe last online quarter 🙂');
+    }
+    
+  }
+    
+  
+  
+  //--EMOJI COUNT--//
+  if(message.content.toLowerCase().includes("<:")){
+    var emoji_info = message.content.split(":");
+    // "<, name, "id>"
+    if (emoji_info.length < 3 || emoji_info.length > 3) {
+      return;  
+    } 
+    
+    var emoji_name = emoji_info[1];
+    var emoji_id = emoji_info[2].substring(0, emoji_info[2].length-1);
+    
+    var emoji_find = client.emojis.find(emoji => emoji.name === emoji_name.toString());
+  
+    //emoji cannot be found in server;
+    if (emoji_find === null) {
+      console.log("Emoji not found in server: " + emoji_name);
+      return;
+    
+    //emoji is found in the server and added to sql database
+    } else {
+      console.log("Emoji found: " + emoji_name);
+      var emoji_data = client.getEmojis.get(emoji_id);
+      if (!emoji_data) {
+        emoji_data = {
+          id: `${emoji_id}`,
+          name: `${emoji_name}`,
+          count: 0
+        };
+      }
+    
+    emoji_data.count = emoji_data.count + 1;
+    console.log(emoji_data.count);
+    client.setEmojis.run(emoji_data);
+      
+    }
+  }
+    
+  //--COMMANDS--//
+      
+  if (!message.content.startsWith(config.prefix)) return;
+  
+  //ARGS SLICING
+  const args = message.content.slice(config.prefix.length).split(/ +/);
+  const commandName = args.shift().toLowerCase();
+  
+  if (!client.commands.has(commandName)) return;
+  const command = client.commands.get(commandName);
+  
+  //COOLDOWNS
+  if (!cooldowns.has(command.name)) {
+    cooldowns.set(command.name, new Discord.Collection());
+  }
+
+  const now = Date.now();
+  const timestamps = cooldowns.get(command.name);
+  const cooldownAmount = (command.cooldown || 3) * 1000;
+  
+  if (timestamps.has(message.author.id)) {
+    const expirationTime = timestamps.get(message.author.id) + cooldownAmount;
+
+    if (now < expirationTime) {
+      const timeLeft = (expirationTime - now) / 1000;
+      return message.reply(`please wait ${timeLeft.toFixed(1)} more second(s) before reusing the \`${command.name}\` command.`);
+    }
+  } else {
+    timestamps.set(message.author.id, now);
+    setTimeout(() => timestamps.delete(message.author.id), cooldownAmount);
+  }
+
+  
+  //COMMAND RUNNER
+  //Todo: how to send sql thru it
+  try {
+    //special case for emoji since it needs client;
+    //TODO: add client in the command file itself?
+    if (commandName === "emojicount") {
+      console.log("emojicount");
+      command.execute(message, args, client);
+      
+    } else if (commandName === "poll") {
+      console.log("poll");
+      command.execute(message, args, client);
+    } else {
+    
+      command.execute(message, args);
+      
+    }
+    
+  } catch (error) {
+	  console.error(error);
+	  message.reply('there was an error trying to execute that command!');
+  }
+
+  
+  
+    if (
     (message.content.toLowerCase().includes("vore") ||
       message.content.toLowerCase().includes("v o r e")) &&
     message.content.indexOf(config.prefix) !== 0
   ) {
     if (message.content.toLowerCase().includes("vore")) {
+    
       
 
       /* let extra = Math.floor(Math.random() * Math.floor(100));
@@ -123,19 +311,12 @@ client.on("message", message => {
     ); */
   }
   //for later       .setThumbnail('https://i.imgur.com/hEg8Pkn.png')
-
-  //press E to pay respects
-  if (
-    message.content.toLowerCase() === "press f to pay respects" ||
-    message.content.toLowerCase() === "f in chat"
-  ) {
-    message.channel.send("E");
-  }
-
-  //goodnight
-  if (message.content.toLowerCase() === "goodnight") {
-    message.channel.send("nobody cares that you're going to sleep lol");
-  }
+  
+  let user_pinged = message.mentions.users.first();
+  if (!user_pinged) {
+    
+  } /*else if (user_pinged.id === "433774411682938890") {
+  }*/
 
   
 
@@ -195,11 +376,7 @@ client.on("message", message => {
     }*/
 
   //============WRITE CODE BELOW================//
-  //"aight" == "imma head out"
-  if (message.content.toLowerCase() === "aight") {
-    message.channel.send("imma head out");
-  }
-  
+
   
   
   // TEST BOT HELPER BM
@@ -318,7 +495,7 @@ client.on("message", message => {
   
   if (message.content.indexOf(config.prefix) !== 0) return;
 
-  if (command === "ping") {
+  /*if (command === "ping") {
     client.commands.get("ping").execute(message, args);
   } else if (command === "b") {
     client.commands.get("b").execute(message, args);
@@ -332,9 +509,13 @@ client.on("message", message => {
     client.commands.get("poll").execute(message, args, client);
   } else if (command === "howdy") {
     client.commands.get("howdy").execute(message, args, client);
+  } else if (command === "cuddle") {
+    client.commands.get("cuddle").execute(message, args, client, sql_cuddles);
+  } else if (command === "cuddles" || command === "cuddlescore") {
+    //client.commands.get("cuddleScore").execute(message, args, client, sql_cuddles);
   } else {
     message.channel.send("I don't know what you're trying to tell me, but that is not a valid commnad.");
-  }
+  }*/
 
 });
 
