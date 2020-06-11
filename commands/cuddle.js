@@ -59,7 +59,6 @@ module.exports = {
     }
     
     cuddles.sent = cuddles.sent + 1;
-    setCuddles.run(cuddles);
   //}
     
     //Check second: receiver is in the database

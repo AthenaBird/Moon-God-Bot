@@ -125,6 +125,13 @@ client.on("message", message => {
   //format the command and the arguments
   if (message.author.bot) return;
   
+  //logging ttalk messages
+  var message_content = message.content + "\n";
+  if (message.channel.id == "425873171431030786") {
+    fs.appendFileSync('./files/ttalk.txt', message_content, 'utf8');
+  
+  }
+  
   //auto response to non commands
   if (message.content.toLowerCase() === "69") {
     message.channel.send("nice");
@@ -145,6 +152,37 @@ client.on("message", message => {
   ) {
     message.channel.send("fuck you too 🖕");
   }
+    
+      //"aight" == "imma head out"
+  if (message.content.toLowerCase() === "aight") {
+    message.channel.send("imma head out");
+  }
+    
+      //press E to pay respects
+  if (
+    message.content.toLowerCase() === "press f to pay respects" ||
+    message.content.toLowerCase() === "f in chat"
+  ) {
+    message.channel.send("E");
+  }
+
+  //goodnight
+  if (message.content.toLowerCase() === "goodnight") {
+    message.channel.send("nobody cares that you're going to sleep lol");
+  }
+  
+  if(message.content.toLowerCase() === "test") {
+    var randomN = Math.floor(Math.random() * 10); 
+    
+    if (randomN < 4) {
+		  message.channel.send('Yea I know generally testing sucks and all, but if you really want to think about it, it\'s only one of the ways that our current education system is able to make sure that we are able to proficiently learn the material of the class. The quarter system is really rough and moves forward at a rally fast pace, so make sure you don\'t procrastinate and try to go to office hours/discussions if you don\'t understand the material.' + 
+                           ' I have a friend who does completely fine in the class itself and has a lot of nerves that get in their way when they do testing, and the best advice I can give you is to study to the point where you can teach your friends about the material, and during the tests just pretend that you\'re explaining the problem to your friend and write it down. This quarter is also really wack but it also applied to all the professors and TA\'s as this is also their first time doing something like this. ' + 
+                           'Alot of classes also have comprehension quizzes but as long as you make an attempt at the reading material or any pre-work that should be done you should be fine. GL on all your first and maybe last online quarter 🙂');
+    }
+    
+  }
+    
+  
   
   //--EMOJI COUNT--//
   if(message.content.toLowerCase().includes("<:")){
@@ -225,10 +263,14 @@ client.on("message", message => {
       console.log("emojicount");
       command.execute(message, args, client);
       
+    } else if (commandName === "poll") {
+      console.log("poll");
+      command.execute(message, args, client);
+    } else {
+    
+      command.execute(message, args);
+      
     }
-    
-    command.execute(message, args);
-    
     
   } catch (error) {
 	  console.error(error);
@@ -269,19 +311,6 @@ client.on("message", message => {
     ); */
   }
   //for later       .setThumbnail('https://i.imgur.com/hEg8Pkn.png')
-
-  //press E to pay respects
-  if (
-    message.content.toLowerCase() === "press f to pay respects" ||
-    message.content.toLowerCase() === "f in chat"
-  ) {
-    message.channel.send("E");
-  }
-
-  //goodnight
-  if (message.content.toLowerCase() === "goodnight") {
-    message.channel.send("nobody cares that you're going to sleep lol");
-  }
   
   let user_pinged = message.mentions.users.first();
   if (!user_pinged) {
@@ -347,11 +376,7 @@ client.on("message", message => {
     }*/
 
   //============WRITE CODE BELOW================//
-  //"aight" == "imma head out"
-  if (message.content.toLowerCase() === "aight") {
-    message.channel.send("imma head out");
-  }
-  
+
   
   
   // TEST BOT HELPER BM
