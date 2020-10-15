@@ -118,7 +118,7 @@ client.once("ready", () => {
   
   
   
-  client.user.setActivity("the demise of Sun God Bot", { type: "WATCHING" });
+  client.user.setActivity("for meteor 2020", { type: "WATCHING" });
 });
 
 client.on("message", message => {

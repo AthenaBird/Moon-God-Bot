@@ -3,7 +3,7 @@ module.exports = {
 	description: 'Get sent to the shadow realm!',
 	execute(message, args) {
     message.channel.send("Attempting to snap...");
-		if(message.member.roles.find(r => r.name === "Kages 👑") || message.member.roles.find(r => r.name === "Moderators 🛡️")) {
+		if(message.member.roles.find(r => r.name === "Kages 👑") || message.member.roles.find(r => r.name === "Moderators 🛡️") || message.member.id === "186011132325003264") {
       if(!args.length) {
         message.channel.send("@ whoever you want me to snap after the command...");
         return;
@@ -20,6 +20,10 @@ module.exports = {
         member.removeRole(verified).catch(console.error);
         
         message.channel.send("Goodbye, " + message.mentions.members.first());
+        
+        if (member.id === "334441828512432129"){
+          message.channel.send("https://media.giphy.com/media/j6Af6gI2UaNNZL2Nh2/giphy.gif")
+        }
       }
     } else {
       message.channel.send("You do not have enough infinity stones to perform this command...");

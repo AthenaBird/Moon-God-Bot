@@ -14,7 +14,14 @@
     "better-sqlite3": "^5.4.3",
     "discord.js": "^11.5.1",
     "express": "^4.16.4",
-    "node-gyp": "^6.0.0"
+    "node-gyp": "^6.0.0",
+    "minecraft-server-util": "^1.2.0",
+    "@discordjs/opus": "^0.3.2",
+    "ffmpeg": "",
+    "sodium": "",
+    "node-opus": "^0.3.3",
+    "opusscript": "^0.0.7",
+    "discord.js-minesweeper": "^1.0.6"
   },
   "engines": {
     "node": "8.x"
