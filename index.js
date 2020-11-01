@@ -11,6 +11,7 @@ const sql_emojis = new SQLite("./databases/emojis.sqlite")
 const sql_birthdays = new SQLite("./databases/birthdays.sqlite")
 const fs = require('fs');
 const cooldowns = new Discord.Collection();
+// Test
 
 client.commands = new Discord.Collection();
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
