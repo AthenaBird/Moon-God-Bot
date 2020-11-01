@@ -1,0 +1,38 @@
+{
+  "//1": "describes your app and its dependencies",
+  "//2": "https://docs.npmjs.com/files/package.json",
+  "//3": "updating this file will download and update your packages",
+  "name": "hello-express",
+  "version": "0.0.1",
+  "description": "A simple Node app built on Express, instantly up and running.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@discordjs/opus": "^0.3.2",
+    "better-sqlite3": "^5.4.3",
+    "discord.js": "^11.6.4",
+    "discord.js-minesweeper": "^1.0.6",
+    "express": "^4.17.1",
+    "ffmpeg": "",
+    "minecraft-server-util": "^1.4.3",
+    "node-gyp": "^6.1.0",
+    "node-opus": "^0.3.3",
+    "opusscript": "^0.0.7",
+    "sodium": ""
+  },
+  "engines": {
+    "node": "8.x"
+  },
+  "repository": {
+    "url": "https://glitch.com/edit/#!/hello-express"
+  },
+  "license": "MIT",
+  "keywords": [
+    "node",
+    "glitch",
+    "express"
+  ]
+}
