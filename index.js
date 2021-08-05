@@ -243,12 +243,14 @@ client.on("message", message => {
   }
   
   if(message.content.toLowerCase() === "ucsd") {
-    var randomN = Math.floor(Math.random() * 10); 
+    var randomN = Math.floor(Math.random() * 100); 
     
     if (randomN < 6) {
-		  message.channel.send('Yea I know generally testing sucks and all, but if you really want to think about it, it\'s only one of the ways that our current education system is able to make sure that we are able to proficiently learn the material of the class. The quarter system is really rough and moves forward at a rally fast pace, so make sure you don\'t procrastinate and try to go to office hours/discussions if you don\'t understand the material.' + 
-                           ' I have a friend who does completely fine in the class itself and has a lot of nerves that get in their way when they do testing, and the best advice I can give you is to study to the point where you can teach your friends about the material, and during the tests just pretend that you\'re explaining the problem to your friend and write it down. This quarter is also really wack but it also applied to all the professors and TA\'s as this is also their first time doing something like this. ' + 
-                           'Alot of classes also have comprehension quizzes but as long as you make an attempt at the reading material or any pre-work that should be done you should be fine. GL on all your first and maybe last online quarter 🙂');
+		  message.channel.send('Thirty fucking two percent. I give up from this school, I really do.' +
+        'All that fucking hard work for nothing. The overall experience is absolute trash but I thought, maybe, the reputation would save it but just look at that shit. 1 in 3. What the fuck. That\'s middle america tier. Just let anyone in! Worked hard? Come on in! Did you work just a bit more than usual? Come on in!' +       
+        'I got fucking regents, they bought me the fuck out, but fuck this I should have gone to USC or UCLA and just take the L on the debt. All the sacrifices I made for prestige and money: working extremely hard for 1530 SAT, giving up social life, giving up a dream school atmosphere and experience all for fucking nothing, all absolutely out the fucking window. When anyone can get in like this what\'s the point in working so hard to pull yourself out of the herd? Any fucking dumbass can make it in here. I am fucking done with this place.' +       
+        'I\'m going to be obsessed just to get post-graduate work so I can erase this embarrassment from my life.' +
+        'If this was your "target" school and you made it in, congrats, but just to let you know as you have realized: you\'re not very ambitious and you settled for very little.');
     }
     
   }

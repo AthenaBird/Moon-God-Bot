@@ -3,7 +3,7 @@ module.exports = {
 	description: 'Unsnaps a user!',
 	execute(message, args) {
 		message.channel.send("Attempting to unsnap...");
-		if(message.member.roles.find(r => r.name === "Kages 👑") || message.member.roles.find(r => r.name === "Moderators 🛡️")) {
+		if(message.member.roles.find(r => r.name === "Kages 👑") || message.member.roles.find(r => r.name === "Moderators 🛡️") || message.member.roles.find(r => r.name === "Moderators 📅")) {
       if(!args.length) {
         message.channel.send("@ whoever you want me to unsnap after the command...");
         return;

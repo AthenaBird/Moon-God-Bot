@@ -3,7 +3,7 @@ module.exports = {
 	description: 'Get sent to the shadow realm!',
 	execute(message, args) {
     message.channel.send("Attempting to snap...");
-		if(message.member.roles.find(r => r.name === "Kages 👑") || message.member.roles.find(r => r.name === "Moderators 🛡️") || message.member.id === "186011132325003264"  || message.author.id === "186011132325003264") {
+		if(message.member.roles.find(r => r.name === "Kages 👑") || message.member.roles.find(r => r.name === "Moderators 🛡️") || message.member.roles.find(r => r.name === "Moderators 📅") || message.member.id === "186011132325003264"  || message.author.id === "186011132325003264") {
       if(!args.length) {
         message.channel.send("@ whoever you want me to snap after the command...");
         return;
